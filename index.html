@@ -823,25 +823,25 @@
 
       <div class="contact-form fade-up d2">
         <h3>Cuéntanos tu viaje ideal ✈</h3>
-        <form onsubmit="handleForm(event)">
+        <form id="contactForm">
           <div class="fg-row">
             <div class="fg">
               <label>Tu nombre</label>
-              <input type="text" placeholder="Ana García" required>
+              <input type="text" name="nombre" placeholder="Ana García" required>
             </div>
             <div class="fg">
               <label>WhatsApp / Teléfono</label>
-              <input type="tel" placeholder="+34 600 000 000">
+              <input type="tel" name="telefono" placeholder="+34 600 000 000">
             </div>
           </div>
           <div class="fg">
             <label>¿A dónde quieres ir?</label>
-            <input type="text" placeholder="¡Sorpréndeme! o escribe tu destino" required>
+            <input type="text" name="destino" placeholder="¡Sorpréndeme! o escribe tu destino" required>
           </div>
           <div class="fg-row">
             <div class="fg">
               <label>¿Cuántas personas?</label>
-              <select>
+              <select name="personas">
                 <option>Solo/a</option>
                 <option>Pareja</option>
                 <option>3–5 personas</option>
@@ -850,12 +850,12 @@
             </div>
             <div class="fg">
               <label>Fechas aproximadas</label>
-              <input type="text" placeholder="Ej: junio 2025, flexible…">
+              <input type="text" name="fechas" placeholder="Ej: junio 2025, flexible…">
             </div>
           </div>
           <div class="fg">
             <label>Algo más que quieras contarnos</label>
-            <textarea placeholder="Presupuesto, tipo de alojamiento, intereses especiales… Todo ayuda para diseñar tu viaje perfecto."></textarea>
+            <textarea name="mensaje" placeholder="Presupuesto, tipo de alojamiento, intereses especiales… Todo ayuda para diseñar tu viaje perfecto."></textarea>
           </div>
           <button type="submit" class="btn-submit" id="submitBtn">
             Enviar solicitud →
@@ -943,19 +943,30 @@
   document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
 
   // Form
-  function handleForm(e) {
+  const SERVIDOR_URL = 'https://unsaveable-postlabially-lewis.ngrok-free.dev';
+
+  document.getElementById('contactForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     const btn = document.getElementById('submitBtn');
-    btn.textContent = '✓ ¡Recibido! Te respondemos pronto 🙌';
-    btn.style.background = 'linear-gradient(135deg, #43e97b, #06748C)';
+    const data = Object.fromEntries(new FormData(e.target).entries());
+    btn.textContent = 'Enviando…';
     btn.disabled = true;
-    setTimeout(() => {
-      btn.textContent = 'Enviar solicitud →';
-      btn.style.background = '';
-      btn.disabled = false;
-      e.target.reset();
-    }, 3500);
-  }
+    try {
+      const res = await fetch(`${SERVIDOR_URL}/contacto`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (res.ok) {
+        btn.textContent = '✓ ¡Recibido! Te respondemos pronto 🙌';
+        btn.style.background = 'linear-gradient(135deg, #43e97b, #06748C)';
+        e.target.reset();
+      } else { throw new Error('Error del servidor'); }
+    } catch {
+      btn.textContent = 'Error al enviar. Escríbenos por WhatsApp';
+      btn.style.background = '#e63946';
+    }
+  });
 </script>
 
 </body>
